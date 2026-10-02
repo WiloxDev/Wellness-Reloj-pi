@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "1.0.0",
+  "enabled": true,
+  "clock": {
+    "format": "12h",
+    "showDate": true,
+    "locale": "es",
+    "asciiStyle": "rounded"
+  },
+  "habits": {
+    "waterMinutes": 45,
+    "eyeRestMinutes": 20,
+    "stretchMinutes": 60,
+    "resetOnClick": true
+  },
+  "schedule": {
+    "breakfast": "08:30",
+    "lunch": "13:30",
+    "afternoonSnack": "17:00",
+    "dinner": "21:00",
+    "rest": "23:00"
+  },
+  "appearance": {
+    "theme": "gentle-default",
+    "layout": "auto",
+    "showSystemMetrics": false
+  }
+}

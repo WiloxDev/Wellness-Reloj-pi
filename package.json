@@ -1,0 +1,39 @@
+{
+  "name": "wellness-reloj-pi",
+  "version": "1.0.0",
+  "description": "Reloj digital ASCII y monitor de bienestar ergonómico para el sidebar de Gentle-Pi",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "pi-extension",
+    "gentle-pi",
+    "wellness",
+    "reloj",
+    "clock",
+    "sidebar-widget"
+  ],
+  "author": "WiloxDev (wilsonlavio9@gmail.com)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WiloxDev/Wellness-Reloj-pi.git"
+  },
+  "bugs": {
+    "url": "https://github.com/WiloxDev/Wellness-Reloj-pi/issues"
+  },
+  "homepage": "https://github.com/WiloxDev/Wellness-Reloj-pi#readme",
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "typescript": "^5.9.3"
+  },
+  "pi": {
+    "extensions": [
+      "dist/index.js"
+    ]
+  }
+}

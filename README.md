@@ -16,6 +16,18 @@
 
 ---
 
+## 🤖 Instalación Rápida con Agente de IA
+
+Si usas un asistente o agente de IA (Pi, Claude, Cursor, Copilot, etc.), solo cópiale este prompt:
+
+```text
+Instala la extensión Wellness & Reloj para Gentle-Pi ejecutando:
+curl -fsSL https://raw.githubusercontent.com/WiloxDev/Wellness-Reloj-pi/main/install.sh | bash
+Confírmame cuando esté montada en el sidebar derecho y dónde queda ~/.wellnessrc.json para personalizarla.
+```
+
+---
+
 ## 🚀 Instalación Rápida (1 Solo Comando)
 
 Cualquier usuario de Gentle-Pi puede instalarlo con este comando en su terminal:

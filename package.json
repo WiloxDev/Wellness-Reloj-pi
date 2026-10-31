@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "description": "Reloj digital ASCII y monitor de bienestar ergonómico para el sidebar de Gentle-Pi",
   "main": "dist/index.js",
+  "type": "module",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
+    "test": "tsc && node --test tests/*.test.ts",
     "watch": "tsc --watch",
     "prepublishOnly": "npm run build"
   },
@@ -27,6 +29,14 @@
     "url": "https://github.com/WiloxDev/Wellness-Reloj-pi/issues"
   },
   "homepage": "https://github.com/WiloxDev/Wellness-Reloj-pi#readme",
+  "wiloxCommunity": {
+    "id": "wellness-reloj",
+    "moduleId": "wellness-reloj",
+    "title": "Wellness & Reloj",
+    "author": "WiloxDev",
+    "category": "Community",
+    "order": 35
+  },
   "devDependencies": {
     "@types/node": "^20.19.43",
     "typescript": "^5.9.3"

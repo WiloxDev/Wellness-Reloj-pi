@@ -53,15 +53,13 @@ export class WellnessTracker {
     };
   }
 
-  public resetTimer(type: "water" | "eyes" | "stretch"): void {
-    const now = Date.now();
+  public resetTimer(type: "water" | "eyes" | "stretch", now = Date.now()): void {
     if (type === "water") this.lastWater = now;
     if (type === "eyes") this.lastEyeRest = now;
     if (type === "stretch") this.lastStretch = now;
   }
 
-  public resetAll(): void {
-    const now = Date.now();
+  public resetAll(now = Date.now()): void {
     this.lastWater = now;
     this.lastEyeRest = now;
     this.lastStretch = now;

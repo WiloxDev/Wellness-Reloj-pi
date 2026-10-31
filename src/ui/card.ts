@@ -9,6 +9,7 @@ export interface CardRenderOptions {
   tracker: WellnessTracker;
   config: WellnessConfig;
   theme?: any;
+  now?: Date;
 }
 
 /**
@@ -55,7 +56,10 @@ export function buildClosedCard(
  */
 export function renderWellnessCard(options: CardRenderOptions): string[] {
   const { width, clockEngine, tracker, config, theme } = options;
-  const now = new Date();
+  if (config.enabled === false) {
+    return [];
+  }
+  const now = options.now ?? new Date();
   const { timeStr, period } = clockEngine.getTimeString(now);
   const dateStr = clockEngine.getDateString(now);
   const status = tracker.getStatus(now.getTime());

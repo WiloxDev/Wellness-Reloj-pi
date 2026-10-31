@@ -38,7 +38,7 @@ test("WiloxDev Community Module · Registration and Progressive Disclosure", () 
 
   // When enabled === true, progressive disclosure returns all rows
   const activeRows = moduleDef.rows;
-  assert.strictEqual(activeRows.length, 11, "Should return 11 rows when enabled");
+  assert.strictEqual(activeRows.length, 10, "Should return 10 rows when enabled");
   assert.strictEqual(activeRows[0].label(), "Wellness Widget: [ON]");
 
   // Visual Badges standard: No redundant keyboard hints

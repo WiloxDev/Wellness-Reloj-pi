@@ -287,32 +287,7 @@ export function registerWellnessCommunityModule(
         }
       };
 
-      // 10. Comportamiento en Modo Angosto (<115 columnas)
-      const narrowChatRow: WiloxCommunityRow = {
-        id: "wellness-narrow-visibility",
-        label: () => {
-          const cfg = getConfig();
-          const show = cfg.appearance?.showInNarrowChat === true;
-          return `Modo Angosto (<115c): [${show ? "Visible en Chat" : "Oculto (Chat Limpio)"}]`;
-        },
-        preview: () => {
-          const cfg = getConfig();
-          const show = cfg.appearance?.showInNarrowChat === true;
-          return {
-            title: "Ergonomía · Terminal Angosto",
-            sample: show
-              ? "[Visible] En pantallas angostas sin sidebar, muestra la tarjeta sobre el editor."
-              : "[Oculto] En pantallas angostas, mantiene el chat 100% limpio sin widgets invasivos."
-          };
-        },
-        action: () => {
-          const cfg = getConfig();
-          const next = !(cfg.appearance?.showInNarrowChat === true);
-          applyPatchAndNotify({ appearance: { ...(cfg.appearance || {}), showInNarrowChat: next } });
-        }
-      };
-
-      // 11. Acción Rápida: Reiniciar Contadores
+      // 10. Acción Rápida: Reiniciar Contadores
       const resetRow: WiloxCommunityRow = {
         id: "wellness-reset-timers",
         label: () => "Reiniciar Hábitos: [Reset]",
@@ -340,7 +315,6 @@ export function registerWellnessCommunityModule(
         stretchRow,
         layoutRow,
         sidebarPosRow,
-        narrowChatRow,
         resetRow
       ];
     }

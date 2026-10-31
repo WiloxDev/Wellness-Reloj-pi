@@ -16,7 +16,6 @@ export interface WellnessConfig {
     layout?: "side-by-side" | "stacked" | "auto";
     showSystemMetrics?: boolean;
     sidebarPriority?: number;
-    showInNarrowChat?: boolean;
   };
 }
 
@@ -46,8 +45,7 @@ const DEFAULT_CONFIG: WellnessConfig = {
     theme: "gentle-default",
     layout: "auto",
     showSystemMetrics: false,
-    sidebarPriority: 25,
-    showInNarrowChat: false
+    sidebarPriority: 25
   }
 };
 

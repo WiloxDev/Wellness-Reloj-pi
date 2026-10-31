@@ -108,47 +108,14 @@ export default function activate(pi: any) {
           console.error("[wellness-reloj] Error acoplando al sidebar rail:", err);
         }
 
-        // B. Component for Pi's setWidget (Chat column)
+        // B. Hook for Pi's setWidget (Chat column)
+        // INVARIANTE ESTRICTA WILOXDEV:
+        // CERO LÍNEAS EN CHAT EN TODO MOMENTO.
+        // La tarjeta vive ÚNICA Y EXCLUSIVAMENTE en el sidebar derecho.
+        // Si el sidebar desaparece, la tarjeta desaparece (cero mutación al chat).
         return {
-          render: (width: number) => {
-            if (config.enabled === false) {
-              return [];
-            }
-
-            // CRITICAL ANTI-COLLISION INVARIANT:
-            // If Gentle-Shell's fullscreen right sidebar is active and owns the screen,
-            // SUPPRESS the card from the chat column so it NEVER floats above the chat input!
-            const terminal = tui?.terminal as any;
-            const gentleState = terminal?.[Symbol.for("gentle-pi.experimental-sidebar.state")];
-            const isSidebarActive = Boolean(gentleState?.active && gentleState?.ownsHost?.());
-
-            if (isSidebarActive) {
-              return [];
-            }
-
-            // In narrow mode (< 115 cols), only show in chat if explicitly enabled in preferences
-            if (!config.appearance?.showInNarrowChat) {
-              return [];
-            }
-
-            return renderWellnessCard({
-              width,
-              clockEngine,
-              tracker,
-              config,
-              theme
-            });
-          },
-          handleMouse: (evt: any) => {
-            // Click to reset habits if enabled
-            if (evt?.type === "click" && config.habits?.resetOnClick) {
-              tracker.resetAll();
-              ctx.ui?.notify?.("💧 Hábitos de bienestar reiniciados");
-              triggerRender();
-              return true;
-            }
-            return false;
-          },
+          render: () => [],
+          handleMouse: () => false,
           digest: () => true,
           dispose: () => {
             if (activeTui === tui) {

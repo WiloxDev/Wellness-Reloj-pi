@@ -28,7 +28,10 @@ export function mountSidebarSlot(tui: any, slot: WiloxSidebarSlot): () => void {
   }
 
   const GENTLE_STATE_SLOT = Symbol.for("gentle-pi.experimental-sidebar.state");
-  const gentleState = terminal[GENTLE_STATE_SLOT];
+  const ALT_SIDEBAR_SLOT = Symbol.for("wilox-pi.sidebar.state");
+  const J0K3R_SIDEBAR_SLOT = Symbol.for("j0k3r-theme.sidebar.state");
+
+  const gentleState = terminal[GENTLE_STATE_SLOT] || terminal[ALT_SIDEBAR_SLOT] || terminal[J0K3R_SIDEBAR_SLOT];
   if (!gentleState?.parts) {
     return () => {};
   }

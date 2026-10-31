@@ -35,12 +35,14 @@ export function buildClosedCard(
   const rows: string[] = [topBar];
 
   for (const line of contentLines) {
-    const vLen = visibleWidth(line);
     let paddedLine = line;
-    if (vLen < innerWidth) {
-      paddedLine = line + " ".repeat(innerWidth - vLen);
-    } else if (vLen > innerWidth) {
-      paddedLine = truncateToWidth(line, innerWidth);
+    const vLen = visibleWidth(paddedLine);
+    if (vLen > innerWidth) {
+      paddedLine = truncateToWidth(paddedLine, innerWidth);
+    }
+    const currentVLen = visibleWidth(paddedLine);
+    if (currentVLen < innerWidth) {
+      paddedLine = paddedLine + " ".repeat(innerWidth - currentVLen);
     }
     rows.push(cBorder("│") + paddedLine + cBorder("│"));
   }

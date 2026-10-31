@@ -3,6 +3,7 @@ import { ClockEngine } from "./core/clock.js";
 import { WellnessTracker } from "./core/habits.js";
 import { renderWellnessCard } from "./ui/card.js";
 import { registerWellnessCommunityModule } from "./wilox-community.js";
+import { mountSidebarSlot } from "./sidebar-dock.js";
 
 /**
  * Native Gentle-Pi and Gentle-Shell Extension Entry Point
@@ -15,6 +16,7 @@ export default function activate(pi: any) {
 
   let activeCtx: any = null;
   let activeTui: any = null;
+  let activeTheme: any = null;
 
   const triggerRender = () => {
     try {
@@ -56,7 +58,7 @@ export default function activate(pi: any) {
     console.error("[wellness-reloj] Error registrando módulo comunitario:", err);
   }
 
-  // 3. Register widget on the Right Sidebar of Gentle-Pi / Gentle-Shell
+  // 3. Mount in Gentle-Shell Right Sidebar and Main TUI lifecycle
   pi.on("session_start", async (_event: any, ctx: any) => {
     activeCtx = ctx;
 
@@ -68,11 +70,67 @@ export default function activate(pi: any) {
     try {
       ctx.ui.setWidget("wellness", (tui: any, theme: any) => {
         activeTui = tui;
+        activeTheme = theme;
+
+        // A. Mount in Gentle-Shell Right Sidebar Rail via WiloxDev Slots Bus
+        try {
+          mountSidebarSlot(tui, {
+            id: "wellness-reloj",
+            title: "Wellness & Reloj",
+            order: () => config.appearance?.sidebarPriority ?? 25,
+            enabled: () => config.enabled !== false,
+            render: (width: number) => {
+              if (config.enabled === false) return [];
+              return renderWellnessCard({
+                width,
+                clockEngine,
+                tracker,
+                config,
+                theme: activeTheme || theme
+              });
+            },
+            digest: () => {
+              const now = Date.now();
+              const status = tracker.getStatus(now);
+              return `${config.enabled}-${status.water.remainingMins}-${status.eyes.remainingMins}-${status.stretch.remainingMins}-${config.appearance?.layout}-${config.appearance?.sidebarPriority}`;
+            },
+            handleMouse: (evt: any) => {
+              if (evt?.type === "click" && config.habits?.resetOnClick) {
+                tracker.resetAll();
+                ctx.ui?.notify?.("💧 Hábitos de bienestar reiniciados");
+                triggerRender();
+                return true;
+              }
+              return false;
+            }
+          });
+        } catch (err) {
+          console.error("[wellness-reloj] Error acoplando al sidebar rail:", err);
+        }
+
+        // B. Component for Pi's setWidget (Chat column)
         return {
           render: (width: number) => {
             if (config.enabled === false) {
               return [];
             }
+
+            // CRITICAL ANTI-COLLISION INVARIANT:
+            // If Gentle-Shell's fullscreen right sidebar is active and owns the screen,
+            // SUPPRESS the card from the chat column so it NEVER floats above the chat input!
+            const terminal = tui?.terminal as any;
+            const gentleState = terminal?.[Symbol.for("gentle-pi.experimental-sidebar.state")];
+            const isSidebarActive = Boolean(gentleState?.active && gentleState?.ownsHost?.());
+
+            if (isSidebarActive) {
+              return [];
+            }
+
+            // In narrow mode (< 115 cols), only show in chat if explicitly enabled in preferences
+            if (!config.appearance?.showInNarrowChat) {
+              return [];
+            }
+
             return renderWellnessCard({
               width,
               clockEngine,

@@ -7,7 +7,7 @@ export interface WiloxSidebarSlot {
   enabled: () => boolean;
   render: (width: number) => string[];
   digest?: () => string;
-  handleMouse?: (event: any, localY: number) => boolean | undefined;
+  handleMouse?: (event: any, localY: number) => any;
 }
 
 export interface CompositorSlotMeta {
@@ -137,7 +137,9 @@ export function mountSidebarSlot(tui: any, slot: WiloxSidebarSlot): () => void {
             const localY = clickY - meta.startY;
             if (typeof meta.slot.handleMouse === "function") {
               const handled = meta.slot.handleMouse(event, localY);
-              if (handled) return handled;
+              if (handled) {
+                return typeof handled === "object" ? handled : { handled: true };
+              }
             }
           }
         }

@@ -1,4 +1,4 @@
-import { visibleWidth, truncateToWidth } from "../core/ansi.js";
+import { visibleWidth, truncateToWidth, fitToWidth } from "../core/ansi.js";
 import { ClockEngine } from "../core/clock.js";
 import { WellnessTracker } from "../core/habits.js";
 import { WellnessConfig } from "../config.js";
@@ -30,7 +30,7 @@ export function buildClosedCard(
 
   const topTitle = title ? ` ${title} ` : "";
   const topBorderLen = Math.max(0, innerWidth - visibleWidth(topTitle));
-  const topBar = cBorder("╭") + cTitle(topTitle) + cBorder("─".repeat(topBorderLen) + "╮");
+  const topBar = fitToWidth(cBorder("╭") + cTitle(topTitle) + cBorder("─".repeat(topBorderLen) + "╮"), safeWidth);
 
   const rows: string[] = [topBar];
 
@@ -44,10 +44,10 @@ export function buildClosedCard(
     if (currentVLen < innerWidth) {
       paddedLine = paddedLine + " ".repeat(innerWidth - currentVLen);
     }
-    rows.push(cBorder("│") + paddedLine + cBorder("│"));
+    rows.push(fitToWidth(cBorder("│") + paddedLine + cBorder("│"), safeWidth));
   }
 
-  const bottomBar = cBorder("╰" + "─".repeat(innerWidth) + "╯");
+  const bottomBar = fitToWidth(cBorder("╰" + "─".repeat(innerWidth) + "╯"), safeWidth);
   rows.push(bottomBar);
 
   return rows;

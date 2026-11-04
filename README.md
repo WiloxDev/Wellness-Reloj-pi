@@ -1,3 +1,16 @@
+## 🚀 Instalación Canónica (Gentle-Shell)
+
+### Opción 1: Con el gestor nativo de Pi
+`ash
+pi install WiloxDev/Wellness-Reloj-pi
+`
+
+### Opción 2: Instalador local para Gentle-Shell
+`ash
+./install.sh
+`
+
+---
 # ⏰ Wellness & Reloj para Gentle-Pi
 
 > Widget de reloj digital ASCII redondeado y monitor de hábitos ergonómicos para el sidebar derecho de Gentle-Pi. Aislado, ligero, sin dependencias pesadas y protegido contra actualizaciones del anfitrión.

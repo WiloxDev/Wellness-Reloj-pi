@@ -99,9 +99,9 @@ export default function activate(pi: any) {
                 tracker.resetAll();
                 ctx.ui?.notify?.("💧 Hábitos de bienestar reiniciados");
                 triggerRender();
-                return true;
+                return { handled: true };
               }
-              return false;
+              return undefined;
             }
           });
         } catch (err) {
@@ -115,7 +115,7 @@ export default function activate(pi: any) {
         // Si el sidebar desaparece, la tarjeta desaparece (cero mutación al chat).
         return {
           render: () => [],
-          handleMouse: () => false,
+          handleMouse: () => undefined,
           digest: () => true,
           dispose: () => {
             if (activeTui === tui) {
@@ -153,6 +153,13 @@ export default function activate(pi: any) {
             ctx.ui?.notify?.("👁 Temporizador de descanso visual reiniciado.");
             triggerRender();
             break;
+          case "doctor": {
+            const now = Date.now();
+            const s = tracker.getStatus(now);
+            const msg = "[Wellness Doctor] Estado: Activo | Agua: " + s.water.remainingMins + "m | Ojos: " + s.eyes.remainingMins + "m | Pausa: " + s.stretch.remainingMins + "m | Config: ~/.config/wiloxdev/settings.json";
+            ctx.ui?.notify?.(msg);
+            break;
+          }
           case "stretch":
           case "pausa":
             tracker.resetTimer("stretch");
@@ -161,7 +168,7 @@ export default function activate(pi: any) {
             break;
           default:
             ctx.ui?.notify?.(
-              "Uso: /wellness [reset | water | eyes | stretch]"
+              "Uso: /wellness [reset | water | eyes | stretch | doctor]"
             );
             break;
         }

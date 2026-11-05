@@ -125,5 +125,5 @@ export function renderWellnessCard(options: CardRenderOptions): string[] {
     content.push(cMuted(footerDate));
   }
 
-  return buildClosedCard("⏰ Wellness & Reloj", content, width, theme);
+  return buildClosedCard("🍅 PomoReloj Bigote", content, width, theme);
 }

@@ -76,7 +76,7 @@ export default function activate(pi: any) {
         try {
           mountSidebarSlot(tui, {
             id: "wellness-reloj",
-            title: "Wellness & Reloj",
+            title: "🍅 PomoReloj Bigote",
             order: () => config.appearance?.sidebarPriority ?? 25,
             enabled: () => config.enabled !== false,
             render: (width: number) => {
@@ -130,49 +130,51 @@ export default function activate(pi: any) {
     }
   });
 
-  // 4. Register user terminal command /wellness
+  // 4. Register user terminal commands (/pomoreloj, /pomo, /wellness)
   if (typeof pi.registerCommand === "function") {
-    pi.registerCommand("wellness", {
-      description: "Gestiona temporizadores de salud y reloj (reset, water, eyes, stretch)",
-      handler: async (args: string[], ctx: any) => {
-        const subcmd = (args[0] || "").toLowerCase();
+    const handleCommand = async (args: string[], ctx: any) => {
+      const subcmd = (args[0] || "").toLowerCase();
 
-        switch (subcmd) {
-          case "reset":
-            tracker.resetAll();
-            ctx.ui?.notify?.("✨ Todos los temporizadores han sido reiniciados.");
-            triggerRender();
-            break;
-          case "water":
-            tracker.resetTimer("water");
-            ctx.ui?.notify?.("💧 Temporizador de agua reiniciado.");
-            triggerRender();
-            break;
-          case "eyes":
-            tracker.resetTimer("eyes");
-            ctx.ui?.notify?.("👁 Temporizador de descanso visual reiniciado.");
-            triggerRender();
-            break;
-          case "doctor": {
-            const now = Date.now();
-            const s = tracker.getStatus(now);
-            const msg = "[Wellness Doctor] Estado: Activo | Agua: " + s.water.remainingMins + "m | Ojos: " + s.eyes.remainingMins + "m | Pausa: " + s.stretch.remainingMins + "m | Config: ~/.config/wiloxdev/settings.json";
-            ctx.ui?.notify?.(msg);
-            break;
-          }
-          case "stretch":
-          case "pausa":
-            tracker.resetTimer("stretch");
-            ctx.ui?.notify?.("🧘 Temporizador de pausa activa reiniciado.");
-            triggerRender();
-            break;
-          default:
-            ctx.ui?.notify?.(
-              "Uso: /wellness [reset | water | eyes | stretch | doctor]"
-            );
-            break;
+      switch (subcmd) {
+        case "reset":
+          tracker.resetAll();
+          ctx.ui?.notify?.("✨ Todos los temporizadores de PomoReloj han sido reiniciados.");
+          triggerRender();
+          break;
+        case "water":
+          tracker.resetTimer("water");
+          ctx.ui?.notify?.("💧 Temporizador de agua reiniciado.");
+          triggerRender();
+          break;
+        case "eyes":
+          tracker.resetTimer("eyes");
+          ctx.ui?.notify?.("👁 Temporizador de descanso visual reiniciado.");
+          triggerRender();
+          break;
+        case "doctor": {
+          const now = Date.now();
+          const s = tracker.getStatus(now);
+          const msg = "[PomoReloj Doctor] Estado: Activo | Agua: " + s.water.remainingMins + "m | Ojos: " + s.eyes.remainingMins + "m | Pausa: " + s.stretch.remainingMins + "m | Config: ~/.config/wiloxdev/settings.json";
+          ctx.ui?.notify?.(msg);
+          break;
         }
+        case "stretch":
+        case "pausa":
+          tracker.resetTimer("stretch");
+          ctx.ui?.notify?.("🧘 Temporizador de pausa activa reiniciado.");
+          triggerRender();
+          break;
+        default:
+          ctx.ui?.notify?.(
+            "Uso: /pomoreloj [reset | water | eyes | stretch | doctor]"
+          );
+          break;
       }
-    });
+    };
+
+    const cmdDesc = "🍅 PomoReloj Bigote: temporizadores de salud y reloj (reset, water, eyes, stretch, doctor)";
+    pi.registerCommand("pomoreloj", { description: cmdDesc, handler: handleCommand });
+    pi.registerCommand("pomo", { description: cmdDesc + " (alias rápido)", handler: handleCommand });
+    pi.registerCommand("wellness", { description: cmdDesc + " (compatibilidad heredada)", handler: handleCommand });
   }
 }

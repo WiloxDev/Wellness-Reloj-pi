@@ -1,58 +1,58 @@
-﻿{
-    "name":  "wellness-reloj-pi",
-    "version":  "1.0.0",
-    "description":  "Reloj digital ASCII y monitor de bienestar ergonÃ³mico para el sidebar de Gentle-Pi",
-    "main":  "dist/index.js",
-    "type":  "module",
-    "types":  "dist/index.d.ts",
-    "scripts":  {
-                    "build":  "tsc",
-                    "test":  "tsc \u0026\u0026 node --test tests/*.test.ts",
-                    "watch":  "tsc --watch",
-                    "prepublishOnly":  "npm run build"
-                },
-    "keywords":  [
-                     "gentle-shell-package",
-                     "gentle-shell-extension",
-                     "gentle-hub-project",
-                     "pi-extension",
-                     "gentle-pi",
-                     "gentle-shell",
-                     "wellness",
-                     "reloj",
-                     "clock",
-                     "sidebar-widget"
-                 ],
-    "author":  "WiloxDev (wilsonlavio9@gmail.com)",
-    "license":  "MIT",
-    "repository":  {
-                       "type":  "git",
-                       "url":  "https://github.com/WiloxDev/Wellness-Reloj-pi.git"
-                   },
-    "bugs":  {
-                 "url":  "https://github.com/WiloxDev/Wellness-Reloj-pi/issues"
-             },
-    "homepage":  "https://github.com/WiloxDev/Wellness-Reloj-pi#readme",
-    "wiloxCommunity":  {
-                           "id":  "wellness-reloj",
-                           "moduleId":  "wellness-reloj",
-                           "title":  "Wellness \u0026 Reloj",
-                           "author":  "WiloxDev",
-                           "category":  "Community",
-                           "order":  35
-                       },
-    "devDependencies":  {
-                            "@types/node":  "^20.19.43",
-                            "typescript":  "^5.9.3"
-                        },
-    "pi":  {
-               "extensions":  [
-                                  "dist/index.js"
-                              ]
-           },
-    "files":  [
-                  "dist",
-                  "README.md",
-                  "LICENSE"
-              ]
+{
+    "name": "wellness-reloj-pi",
+    "version": "1.0.0",
+    "description": "Pomodoro + reloj y alertas ergonómicas (agua, vista 20-20-20 y pausas) en tu sidebar: porque pasar horas sentado programando no debe costarte la salud.",
+    "main": "dist/index.js",
+    "type": "module",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "test": "tsc && node --test tests/*.test.ts",
+        "watch": "tsc --watch",
+        "prepublishOnly": "npm run build"
+    },
+    "keywords": [
+        "gentle-shell-package",
+        "gentle-shell-extension",
+        "gentle-hub-project",
+        "pi-extension",
+        "gentle-pi",
+        "gentle-shell",
+        "wellness",
+        "reloj",
+        "clock",
+        "sidebar-widget"
+    ],
+    "author": "WiloxDev (wilsonlavio9@gmail.com)",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/WiloxDev/Wellness-Reloj-pi.git"
+    },
+    "bugs": {
+        "url": "https://github.com/WiloxDev/Wellness-Reloj-pi/issues"
+    },
+    "homepage": "https://github.com/WiloxDev/Wellness-Reloj-pi#readme",
+    "wiloxCommunity": {
+        "id": "wellness-reloj",
+        "moduleId": "wellness-reloj",
+        "title": "🍅 PomoReloj Bigote",
+        "author": "WiloxDev",
+        "category": "Community",
+        "order": 35
+    },
+    "devDependencies": {
+        "@types/node": "^20.19.43",
+        "typescript": "^5.9.3"
+    },
+    "pi": {
+        "extensions": [
+            "dist/index.js"
+        ]
+    },
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ]
 }

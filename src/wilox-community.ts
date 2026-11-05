@@ -50,7 +50,7 @@ export function registerWellnessCommunityModule(
 
   registry.set("wellness-reloj", {
     id: "wellness-reloj",
-    title: "Wellness & Reloj",
+    title: "🍅 PomoReloj Bigote",
     order: 35,
     summary: () => {
       const c = getConfig();
@@ -65,11 +65,11 @@ export function registerWellnessCommunityModule(
       // 1. Master Switch with Progressive Disclosure
       const masterRow: WiloxCommunityRow = {
         id: "wellness-master-status",
-        label: () => `Wellness Widget: [${getConfig().enabled ? "ON" : "OFF"}]`,
+        label: () => `PomoReloj: [${getConfig().enabled ? "ON" : "OFF"}]`,
         preview: () => {
           const cfg = getConfig();
           return {
-            title: "Wellness & Reloj · Master Switch",
+            title: "🍅 PomoReloj Bigote · Master Switch",
             sample: cfg.enabled
               ? "[ON] Widget activo: Reloj digital ASCII y monitor de salud ergonómica en el sidebar."
               : "[OFF] Widget desactivado: Oculta la tarjeta del sidebar y libera espacio en pantalla."
@@ -275,8 +275,8 @@ export function registerWellnessCommunityModule(
           return {
             title: "Sidebar Dock · Secuencia de Tarjetas",
             sample: isTop
-              ? "┌── Sidebar Derecho ────────────┐\n│ 1. 󰣇 Status & Proyecto        │\n│ 2. ⏱️ Wellness + Reloj  [AQUÍ] │\n│ 3. ⚡ CPAMC Sentinel (Cuota)   │\n│ 4. 󰄳 TODO List                │\n└───────────────────────────────┘"
-              : "┌── Sidebar Derecho ────────────┐\n│ 1. 󰣇 Status & Proyecto        │\n│ 2. ⚡ CPAMC Sentinel (Cuota)   │\n│ 3. ⏱️ Wellness + Reloj  [AQUÍ] │\n│ 4. 󰄳 TODO List                │\n└───────────────────────────────┘"
+              ? "┌── Sidebar Derecho ────────────┐\n│ 1. 󰣇 Status & Proyecto        │\n│ 2. 🍅 PomoReloj Bigote  [AQUÍ] │\n│ 3. ⚡ CPAMC Sentinel (Cuota)   │\n│ 4. 󰄳 TODO List                │\n└───────────────────────────────┘"
+              : "┌── Sidebar Derecho ────────────┐\n│ 1. 󰣇 Status & Proyecto        │\n│ 2. ⚡ CPAMC Sentinel (Cuota)   │\n│ 3. 🍅 PomoReloj Bigote  [AQUÍ] │\n│ 4. 󰄳 TODO List                │\n└───────────────────────────────┘"
           };
         },
         action: () => {

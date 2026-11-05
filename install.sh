@@ -1,6 +1,6 @@
 ﻿#!/usr/bin/env bash
 # ==============================================================================
-# Wellness & Reloj - Instalador Canónico para Gentle-Shell
+# 🍅 PomoReloj Bigote - Instalador Canónico para Gentle-Shell
 # ==============================================================================
 set -e
 
@@ -8,7 +8,7 @@ REPO_URL="https://github.com/WiloxDev/Wellness-Reloj-pi.git"
 TARGET_EXT_DIR="$HOME/.gentle-shell/agent/extensions/wellness-reloj"
 EXT_BASE="$(dirname "$TARGET_EXT_DIR")"
 
-echo "⏰ Instalando 'Wellness & Reloj' en Gentle-Shell..."
+echo "⏰ Instalando '🍅 PomoReloj Bigote' en Gentle-Shell..."
 
 mkdir -p "$EXT_BASE"
 

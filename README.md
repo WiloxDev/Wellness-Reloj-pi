@@ -10,10 +10,28 @@ pi install WiloxDev/Wellness-Reloj-pi
 ./install.sh
 `
 
----
-# ⏰ Wellness & Reloj para Gentle-Pi
+<div align="center">
+  <img src="docs/assets/logo.png" alt="PomoReloj Bigote Logo" width="160" />
+  <h1>🍅 PomoReloj Bigote</h1>
+  <p><b>Pomodoro + reloj y alertas ergonómicas (agua, vista 20-20-20 y pausas) en tu sidebar: porque pasar horas sentado programando no debe costarte la salud.</b></p>
 
-> Widget de reloj digital ASCII redondeado y monitor de hábitos ergonómicos para el sidebar derecho de Gentle-Pi. Aislado, ligero, sin dependencias pesadas y protegido contra actualizaciones del anfitrión.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Tests](https://img.shields.io/badge/Tests-17%20passing-brightgreen.svg)](https://github.com/WiloxDev/Wellness-Reloj-pi)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Strict%200%20errors-blue.svg)](https://github.com/WiloxDev/Wellness-Reloj-pi)
+[![Gentle-Shell](https://img.shields.io/badge/Gentle--Shell-Homologated-purple.svg)](https://gentlemanprogramming.com/gentle-hub/)
+
+</div>
+
+---
+
+```text
+╭─── 🍅 PomoReloj Bigote ───────────────────╮
+│   ╭─╮ ╭─╮   ╭─╮ ╭─╮                       │
+│   │ │ ╶─┤ · ╰─╯ ╰─╯ PM   💧 Agua:   42m   │
+│   ╰─╯ ──╯   ╰─╯   │      👀 Vista:  18m   │
+│   Miércoles, 04 Nov      🚶 Pausa:  55m   │
+╰───────────────────────────────────────────╯
+```
 
 ---
 
@@ -92,14 +110,16 @@ El instalador genera automáticamente tu archivo de configuración en tu carpeta
 
 ---
 
-## 🕹 Comandos en Gentle-Pi
+## 🕹 Comandos en Gentle-Shell & Pi
 
-Dentro de la sesión de Gentle-Pi tienes disponible el comando `/wellness`:
+Dentro de la consola dispones de los comandos nativos `/pomoreloj` (o `/pomo`) y `/wellness` (alias retrocompatible):
 
-- `/wellness reset` — Reinicia todos los temporizadores a cero.
-- `/wellness water` — Reinicia el contador de agua.
-- `/wellness eyes` — Reinicia el contador de descanso visual.
-- `/wellness stretch` — Reinicia el contador de pausa activa.
+- `/pomoreloj reset` (o `/pomo reset`) — Reinicia todos los temporizadores a cero de un solo golpe.
+- `/pomoreloj water` (o `/pomo water`) — Reinicia el contador de agua e hidratación.
+- `/pomoreloj eyes` (o `/pomo eyes`) — Reinicia el contador de descanso visual (regla 20-20-20).
+- `/pomoreloj stretch` / `/pomo pausa` — Reinicia el contador de pausa activa y postura.
+- `/pomoreloj doctor` — Auditoría rápida del estado y tiempos restantes en pantalla.
+- *Tip ergonómico*: También puedes hacer **1-clic con el ratón** directamente sobre la tarjeta en el sidebar para resetear todos los hábitos al instante.
 
 ---
 

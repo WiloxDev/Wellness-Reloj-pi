@@ -33,13 +33,13 @@ test("WiloxDev Community Module · Registration and Progressive Disclosure", () 
 
   const moduleDef = registry.get("wellness-reloj")!;
   assert.strictEqual(moduleDef.id, "wellness-reloj");
-  assert.strictEqual(moduleDef.title, "Wellness & Reloj");
+  assert.strictEqual(moduleDef.title, "🍅 PomoReloj Bigote");
   assert.strictEqual(moduleDef.order, 35);
 
   // When enabled === true, progressive disclosure returns all rows
   const activeRows = moduleDef.rows;
   assert.strictEqual(activeRows.length, 10, "Should return 10 rows when enabled");
-  assert.strictEqual(activeRows[0].label(), "Wellness Widget: [ON]");
+  assert.strictEqual(activeRows[0].label(), "PomoReloj: [ON]");
 
   // Visual Badges standard: No redundant keyboard hints
   for (const row of activeRows) {
@@ -55,7 +55,7 @@ test("WiloxDev Community Module · Registration and Progressive Disclosure", () 
   mockConfig = { ...mockConfig, enabled: false };
   const disabledRows = moduleDef.rows;
   assert.strictEqual(disabledRows.length, 1, "Should return only 1 master row when disabled");
-  assert.strictEqual(disabledRows[0].label(), "Wellness Widget: [OFF]");
+  assert.strictEqual(disabledRows[0].label(), "PomoReloj: [OFF]");
   assert.strictEqual(moduleDef.summary(), "Disabled");
 });
 

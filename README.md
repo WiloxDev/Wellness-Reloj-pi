@@ -15,12 +15,16 @@ pi install WiloxDev/Wellness-Reloj-pi
   <h1>🍅 PomoReloj Bigote</h1>
   <p><b>Pomodoro + reloj y alertas ergonómicas (agua, vista 20-20-20 y pausas) en tu sidebar: porque pasar horas sentado programando no debe costarte la salud.</b></p>
 
+[![Gentle Hub](https://img.shields.io/badge/Gentle%20Hub-Extension-F095C8)](https://gentlemanprogramming.com/gentle-hub/)
+[![Discord](https://img.shields.io/badge/Discord-Apoyo-5865F2?logo=discord&logoColor=white)](https://bit.ly/48zTJUo)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Tests](https://img.shields.io/badge/Tests-17%20passing-brightgreen.svg)](https://github.com/WiloxDev/Wellness-Reloj-pi)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict%200%20errors-blue.svg)](https://github.com/WiloxDev/Wellness-Reloj-pi)
 [![Gentle-Shell](https://img.shields.io/badge/Gentle--Shell-Homologated-purple.svg)](https://gentlemanprogramming.com/gentle-hub/)
 
 </div>
+
+> 💬 **Comunidad y Soporte Oficial:** `wilox2` · [Servidor de Discord](https://bit.ly/48zTJUo)
 
 ---
 

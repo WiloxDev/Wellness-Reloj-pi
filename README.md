@@ -1,5 +1,7 @@
 ## 🚀 Instalación Canónica (Gentle-Shell)
 
+> 🤖 **Para Instalación Asistida por AI (Claude, Pi, Cursor):** Consulta estrictamente [AI_INSTALL.md](AI_INSTALL.md) para garantizar el cumplimiento de la Invariante Zero-Chat y el correcto anclaje en el Sidebar Dock.
+
 ### Opción 1: Con el gestor nativo de Pi
 `ash
 pi install WiloxDev/Wellness-Reloj-pi

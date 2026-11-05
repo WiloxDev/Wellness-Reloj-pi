@@ -18,8 +18,8 @@ export interface CompositorSlotMeta {
 }
 
 /**
- * Registers a community slot into the WiloxDev Unified Sidebar Bus
- * and decorates the Gentle-Shell "footer" (Status card) so cards stack deterministically.
+ * Registra una ranura comunitaria en el Bus Unificado de Sidebar de WiloxDev
+ * y envuelve el "footer" (Status card) de Gentle-Shell de forma resiliente y no invasiva.
  */
 export function mountSidebarSlot(tui: any, slot: WiloxSidebarSlot): () => void {
   const terminal = tui?.terminal as any;
@@ -36,21 +36,26 @@ export function mountSidebarSlot(tui: any, slot: WiloxSidebarSlot): () => void {
     return () => {};
   }
 
-  // 1. Register slot in the global bus
+  // 1. Registrar slot en el registro global compartido
   const globalBus = globalThis as typeof globalThis & {
     [SIDEBAR_SLOTS_SLOT]?: Map<string, WiloxSidebarSlot>;
   };
   const slotRegistry = (globalBus[SIDEBAR_SLOTS_SLOT] ??= new Map<string, WiloxSidebarSlot>());
   slotRegistry.set(slot.id, slot);
 
-  // 2. Wrap "footer" (Status Card) if not already wrapped by our compositor
-  const originalRail = gentleState.parts.get("footer");
-  if (originalRail && !originalRail.__isWiloxSlotsCompositor) {
+  // 2. Función envolvente de "footer" con soporte para inicialización tardía o rebinds
+  const wrapFooter = () => {
+    const originalRail = gentleState.parts.get("footer");
+    if (!originalRail || originalRail.__isWiloxSlotsCompositor) {
+      return;
+    }
+
     let lastRenderedMeta: CompositorSlotMeta[] = [];
 
     const compositorRail = {
       __isWiloxSlotsCompositor: true,
       __originalRail: originalRail,
+      surface: "panel",
       render: (width: number) => {
         let baseLines: string[] = [];
         try {
@@ -62,7 +67,7 @@ export function mountSidebarSlot(tui: any, slot: WiloxSidebarSlot): () => void {
         const lines = [...baseLines];
         lastRenderedMeta = [];
 
-        // Collect all active community slots and sort by order
+        // Obtener slots activos ordenados por prioridad
         const slots = Array.from(slotRegistry.values())
           .filter((s) => {
             try {
@@ -78,7 +83,7 @@ export function mountSidebarSlot(tui: any, slot: WiloxSidebarSlot): () => void {
             const slotLines = s.render(width);
             if (slotLines && slotLines.length > 0) {
               if (lines.length > 0) {
-                lines.push(""); // Clean vertical separator between cards
+                lines.push(""); // Separador visual entre tarjetas
               }
               const startY = lines.length;
               lines.push(...slotLines);
@@ -131,7 +136,7 @@ export function mountSidebarSlot(tui: any, slot: WiloxSidebarSlot): () => void {
           return originalRail.handleMouse?.(event);
         }
 
-        // Check if click lands inside any registered slot
+        // Delegar clic si aterriza dentro del área de algún slot registrado
         for (const meta of lastRenderedMeta) {
           if (clickY >= meta.startY && clickY < meta.startY + meta.height) {
             const localY = clickY - meta.startY;
@@ -147,7 +152,6 @@ export function mountSidebarSlot(tui: any, slot: WiloxSidebarSlot): () => void {
         return originalRail.handleMouse?.(event);
       },
       dispose: () => {
-        // If all slots are unregistered, restore original rail
         if (slotRegistry.size === 0) {
           gentleState.parts.set("footer", originalRail);
         }
@@ -155,9 +159,36 @@ export function mountSidebarSlot(tui: any, slot: WiloxSidebarSlot): () => void {
     };
 
     gentleState.parts.set("footer", compositorRail);
-  }
+  };
+
+  wrapFooter();
 
   return () => {
     slotRegistry.delete(slot.id);
+  };
+}
+
+/**
+ * Factoría que genera un widget para Pi con INVARIANTE ZERO-CHAT ESTRICTA:
+ * Captura las referencias vivas de `tui` y `theme`, pero devuelve `render: () => []`
+ * garantizando que NUNCA se inyecte una sola línea ni tarjeta en el stream de chat superior.
+ */
+export function createZeroChatWidget(onMount?: (tui: any, theme: any) => void) {
+  let mounted = false;
+  return (tui: any, theme: any) => {
+    if (!mounted && onMount) {
+      mounted = true;
+      try {
+        onMount(tui, theme);
+      } catch (err) {
+        console.error("[ZeroChatWidget] Error en hook de montaje:", err);
+      }
+    }
+    return {
+      render: () => [],
+      handleMouse: () => undefined,
+      digest: () => "zero-chat-invariant",
+      dispose: () => {}
+    };
   };
 }

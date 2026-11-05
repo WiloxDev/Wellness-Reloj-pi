@@ -3,7 +3,7 @@ import { ClockEngine } from "./core/clock.js";
 import { WellnessTracker } from "./core/habits.js";
 import { renderWellnessCard } from "./ui/card.js";
 import { registerWellnessCommunityModule } from "./wilox-community.js";
-import { mountSidebarSlot } from "./sidebar-dock.js";
+import { mountSidebarSlot, createZeroChatWidget } from "./sidebar-dock.js";
 
 /**
  * Native Gentle-Pi and Gentle-Shell Extension Entry Point
@@ -68,62 +68,49 @@ export default function activate(pi: any) {
     }
 
     try {
-      ctx.ui.setWidget("wellness", (tui: any, theme: any) => {
-        activeTui = tui;
-        activeTheme = theme;
+      ctx.ui.setWidget(
+        "wellness",
+        createZeroChatWidget((tui: any, theme: any) => {
+          activeTui = tui;
+          activeTheme = theme;
 
-        // A. Mount in Gentle-Shell Right Sidebar Rail via WiloxDev Slots Bus
-        try {
-          mountSidebarSlot(tui, {
-            id: "wellness-reloj",
-            title: "🍅 PomoReloj Bigote",
-            order: () => config.appearance?.sidebarPriority ?? 25,
-            enabled: () => config.enabled !== false,
-            render: (width: number) => {
-              if (config.enabled === false) return [];
-              return renderWellnessCard({
-                width,
-                clockEngine,
-                tracker,
-                config,
-                theme: activeTheme || theme
-              });
-            },
-            digest: () => {
-              const now = Date.now();
-              const status = tracker.getStatus(now);
-              return `${config.enabled}-${status.water.remainingMins}-${status.eyes.remainingMins}-${status.stretch.remainingMins}-${config.appearance?.layout}-${config.appearance?.sidebarPriority}`;
-            },
-            handleMouse: (evt: any) => {
-              if (evt?.type === "click" && config.habits?.resetOnClick) {
-                tracker.resetAll();
-                ctx.ui?.notify?.("💧 Hábitos de bienestar reiniciados");
-                triggerRender();
-                return { handled: true };
-              }
-              return undefined;
-            }
-          });
-        } catch (err) {
-          console.error("[wellness-reloj] Error acoplando al sidebar rail:", err);
-        }
-
-        // B. Hook for Pi's setWidget (Chat column)
-        // INVARIANTE ESTRICTA WILOXDEV:
-        // CERO LÍNEAS EN CHAT EN TODO MOMENTO.
-        // La tarjeta vive ÚNICA Y EXCLUSIVAMENTE en el sidebar derecho.
-        // Si el sidebar desaparece, la tarjeta desaparece (cero mutación al chat).
-        return {
-          render: () => [],
-          handleMouse: () => undefined,
-          digest: () => true,
-          dispose: () => {
-            if (activeTui === tui) {
-              activeTui = null;
-            }
+          // A. Mount in Gentle-Shell Right Sidebar Rail via WiloxDev Slots Bus
+          try {
+            mountSidebarSlot(tui, {
+              id: "wellness-reloj",
+              title: "🍅 PomoReloj Bigote",
+              order: () => config.appearance?.sidebarPriority ?? 25,
+              enabled: () => config.enabled !== false,
+              render: (width: number) => {
+                if (config.enabled === false) return [];
+                return renderWellnessCard({
+                  width,
+                  clockEngine,
+                  tracker,
+                  config,
+                  theme: activeTheme || theme,
+                });
+              },
+              digest: () => {
+                const now = Date.now();
+                const status = tracker.getStatus(now);
+                return `${config.enabled}-${status.water.remainingMins}-${status.eyes.remainingMins}-${status.stretch.remainingMins}-${config.appearance?.layout}-${config.appearance?.sidebarPriority}`;
+              },
+              handleMouse: (evt: any) => {
+                if (evt?.type === "click" && config.habits?.resetOnClick) {
+                  tracker.resetAll();
+                  ctx.ui?.notify?.("💧 Hábitos de bienestar reiniciados");
+                  triggerRender();
+                  return { handled: true };
+                }
+                return undefined;
+              },
+            });
+          } catch (err) {
+            console.error("[wellness-reloj] Error acoplando al sidebar rail:", err);
           }
-        };
-      });
+        })
+      );
     } catch (err) {
       // Isolate error so it never crashes Gentle-Pi host
       console.error("[wellness-reloj] Error registrando widget:", err);

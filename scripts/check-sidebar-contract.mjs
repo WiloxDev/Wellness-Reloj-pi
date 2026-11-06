@@ -28,6 +28,10 @@ const SRC_EXT = new Set([".ts", ".tsx", ".js", ".mjs", ".cjs", ".jsx"]);
 
 const isTestFixture = (p) => /\.test\.[cm]?[jt]sx?$/.test(p) || /(^|\/)(tests?|__fixtures__)\/./.test(p);
 
+// La herramienta no se analiza a sí misma: sus comentarios documentan las reglas y citan
+// los patrones prohibidos, lo que produciría un falso positivo permanente.
+const isDetectorSelf = (p) => p.endsWith("check-sidebar-contract.mjs") || p.endsWith("contract-gate.sh");
+
 async function collect(root) {
   const out = [];
   const stack = [root];
@@ -43,7 +47,7 @@ async function collect(root) {
       const full = join(dir, e.name);
       if (e.isDirectory()) {
         if (!SKIP_DIRS.has(e.name)) stack.push(full);
-      } else if (SRC_EXT.has(extname(e.name)) && !isTestFixture(full)) {
+      } else if (SRC_EXT.has(extname(e.name)) && !isTestFixture(full) && !isDetectorSelf(full)) {
         out.push(full);
       }
     }

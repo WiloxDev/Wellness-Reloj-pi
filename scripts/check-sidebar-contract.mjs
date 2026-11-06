@@ -60,8 +60,17 @@ function analyze(path, src) {
   const hasLink = /__originalRail/.test(src);
   const footerDeletes = [...src.matchAll(/parts\.delete\(\s*["']footer["']/g)];
 
+  // R1 solo aplica a WRAPPERS creados en el propio archivo. Reinyectar un rail que el mismo
+  // archivo leyó antes con parts.get("footer") no corta la cadena: ese rail ya trae la suya.
+  const reinjected = new Set(
+    [...src.matchAll(/parts\.get\(\s*["']footer["']\s*\)/g)].length
+      ? [...src.matchAll(/(?:let|const|var)?\s*\b([A-Za-z_$][\w$]*)\s*=\s*[\w$.]*parts\.get\(\s*["']footer["']\s*\)/g)].map((r) => r[1])
+      : []
+  );
   if (footerWrites.length && !hasLink) {
     for (const m of footerWrites) {
+      const written = /parts\.set\(\s*["']footer["']\s*,\s*([A-Za-z_$][\w$]*)/.exec(src.slice(m.index, m.index + 120))?.[1];
+      if (written && reinjected.has(written)) continue;
       findings.push({
         rule: "R1 footer-opaco",
         file: path,

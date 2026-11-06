@@ -84,6 +84,9 @@ function analyze(path, src) {
   for (const m of src.matchAll(/parts\.set\(\s*["'](?!footer["'])([a-zA-Z0-9_-]+)["']\s*,\s*([A-Za-z_$][\w$]*)\s*\)/g)) {
     const [, id, ident] = m;
     if (!footerWrites.length) continue;
+    // Arbitraje explícito de canal: si el archivo retira la parte al usar el otro canal,
+    // los dos caminos son mutuamente excluyentes y no hay doble pintado.
+    if (new RegExp(`parts\\.delete\\(\\s*["']${id}["']`).test(src)) continue;
     const rendersSame = new RegExp(`${ident}\\s*\\.\\s*render\\s*\\(`).test(src);
     if (!rendersSame) continue;
     findings.push({

@@ -261,6 +261,67 @@ test("Sidebar Dock · Footer reemplazado recibe un compositor en la base actual"
   registry().clear();
 });
 
+test("Sidebar Dock · Patrón extranjero de caché/reinyección (center-control-gentle) pinta una vez", () => {
+  // Emulación fiel de center-control-gentle/index.ts:745-801 en sus tres gestos:
+  // cachear footer, borrarlo (bottom-fixed) y reinyectarlo si falta (dual / gentle-pi).
+  registry().clear();
+  const tui = freshTui(statusRail());
+  const offWellness = mountSidebarSlot(tui, slotDef("ccg-w", 10, ["PomoReloj Bigote"]) as any);
+
+  let cachedFooterRail: Rail | undefined = tui.parts.get("footer"); // :746
+  const cycle = (mode: string) => {
+    if (mode === "bottom-fixed") {
+      if (tui.parts.has("footer")) {
+        cachedFooterRail = tui.parts.get("footer"); // :765
+        tui.parts.delete("footer"); // :766
+      }
+    } else if (cachedFooterRail && !tui.parts.has("footer")) {
+      tui.parts.set("footer", cachedFooterRail); // :784 / :801
+    }
+  };
+
+  cycle("bottom-fixed");
+  // Mientras el compositor está retirado, otra extensión monta: no debe quedar huérfano duplicado.
+  const offLens = mountSecondSlot(tui, slotDef("ccg-l", 20, ["Tools 3% | Chat 2%"]) as any);
+  cycle("dual");
+  cycle("gentle-pi");
+  cycle("bottom-fixed");
+  cycle("dual");
+
+  const rail = tui.parts.get("footer") as Rail;
+  assert.ok(rail, "El footer debe existir tras el ciclo de modos");
+  const lines = rail.render(38);
+  assert.equal(lineCount(lines, "PomoReloj Bigote"), 1, "Ranura de Wellness pintada una vez");
+  assert.equal(lineCount(lines, "Tools 3% | Chat 2%"), 1, "Ranura de Lens pintada una vez");
+  assert.equal(lineCount(lines, "Status"), 1, "La barra base no debe perderse ni duplicarse");
+
+  offWellness?.();
+  offLens?.();
+  registry().clear();
+});
+
+test("Sidebar Dock · Reinyección de un compositor DISPOSADO no duplica ranuras", () => {
+  registry().clear();
+  const tui = freshTui(statusRail());
+  const offWellness = mountSidebarSlot(tui, slotDef("zom", 10, ["Pomo"]) as any);
+
+  const cached = tui.parts.get("footer") as Rail;
+  tui.parts.delete("footer"); // gesto de bottom-fixed
+  offWellness?.(); // su dueño lo desmonta mientras está fuera de parts
+
+  const lensOff = mountSecondSlot(tui, slotDef("zom2", 20, ["Lens"]) as any);
+  tui.parts.set("footer", cached); // reinyección de un rail ya sin dueño
+
+  const rail = tui.parts.get("footer") as Rail;
+  const lines = rail.render(38);
+  assert.equal(compositorsInChain(rail), 1, "Un solo compositor por terminal");
+  assert.equal(lineCount(lines, "Pomo"), 0, "La ranura desmontada no revive");
+  assert.equal(lineCount(lines, "Lens"), 1, "La ranura viva se pinta una vez");
+
+  lensOff?.();
+  registry().clear();
+});
+
 test("Sidebar Dock · Desmontar conserva un footer ajeno y limpia las ranuras", () => {
   registry().clear();
   const tui = freshTui(statusRail());

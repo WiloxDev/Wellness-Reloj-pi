@@ -44,9 +44,28 @@ export function mountSidebarSlot(tui: any, slot: WiloxSidebarSlot): () => void {
   slotRegistry.set(slot.id, slot);
 
   // 2. Función envolvente de "footer" con soporte para inicialización tardía o rebinds
+  //
+  // Un compositor de ranuras ya puede estar montado debajo de capas intermedias que
+  // otra extensión haya insertado sobre el footer visible. Si solo se inspecciona la
+  // capa exterior, cada montador reinstala el compositor y las ranuras compartidas se
+  // dibujan duplicadas. Se recorre la cadena de delegación (acotada y segura frente a
+  // ciclos) para localizar el compositor real antes de volver a envolver.
+  const findSlotsCompositor = (footer: any): boolean => {
+    const visited = new Set<any>();
+    let layer = footer;
+    while (layer && !visited.has(layer)) {
+      if (layer.__isWiloxSlotsCompositor) {
+        return true;
+      }
+      visited.add(layer);
+      layer = layer.__originalRail;
+    }
+    return false;
+  };
+
   const wrapFooter = () => {
     const originalRail = gentleState.parts.get("footer");
-    if (!originalRail || originalRail.__isWiloxSlotsCompositor) {
+    if (!originalRail || findSlotsCompositor(originalRail)) {
       return;
     }
 
@@ -152,7 +171,9 @@ export function mountSidebarSlot(tui: any, slot: WiloxSidebarSlot): () => void {
         return originalRail.handleMouse?.(event);
       },
       dispose: () => {
-        if (slotRegistry.size === 0) {
+        // Solo se restaura la capa base original si este compositor sigue siendo el
+        // footer activo; si otra extensión lo encapsuló, despojarlo eliminaría su capa.
+        if (slotRegistry.size === 0 && gentleState.parts.get("footer") === compositorRail) {
           gentleState.parts.set("footer", originalRail);
         }
       }
@@ -188,6 +209,7 @@ export function createZeroChatWidget(onMount?: (tui: any, theme: any) => void) {
       render: () => [],
       handleMouse: () => undefined,
       digest: () => "zero-chat-invariant",
+      invalidate: () => {},
       dispose: () => {}
     };
   };

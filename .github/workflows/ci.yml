@@ -19,8 +19,13 @@ jobs:
       - name: Instalar dependencias (reproducible)
         run: npm ci
 
-      - name: Build + tests (tsc && node --test)
-        run: npm test
+      - name: Build + tests + frescura de dist
+        run: ./scripts/contract-gate.sh
+
+      - name: La copia de gentle-context-lens cumple el mismo contrato
+        run: |
+          git clone --depth 1 https://github.com/WiloxDev/gentle-context-lens.git ../gentle-context-lens
+          ./scripts/contract-gate.sh ../gentle-context-lens/src/sidebar-dock.ts
 
       - name: Contrato de composición del sidebar (ADR-0001)
         run: node scripts/check-sidebar-contract.mjs src

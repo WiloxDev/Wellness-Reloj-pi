@@ -2,7 +2,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   SIDEBAR_SLOTS_SLOT,
-  mountSidebarSlot
+  mountSidebarSlot,
+  inspectSidebarChain
 } from "../dist/sidebar-dock.js";
 import type { Rail } from "./sidebar-composition-harness.ts";
 import {
@@ -342,4 +343,61 @@ test("Sidebar Dock · Desmontar conserva un footer ajeno y limpia las ranuras", 
   tui.parts.set("footer", (tui.parts.get("footer") as Rail).__originalRail);
   const plain = tui.parts.get("footer") as Rail;
   if (plain.__isWiloxSlotsCompositor) plain.dispose?.();
+});
+
+// --- R6 · diagnóstico de composición (solo lectura, contadores puros) ---
+
+test("Sidebar Dock · Diagnóstico: ve el compositor bajo un wrapper extranjero", () => {
+  registry().clear();
+  const tui = freshTui(statusRail());
+  const off = mountSidebarSlot(tui, slotDef("diag", 10, ["Pomo"]) as any);
+  const outer = forwardingWrapper(tui.parts.get("footer") as Rail);
+  tui.parts.set("footer", outer);
+
+  const chain = inspectSidebarChain(tui);
+  assert.equal(chain.ok, true);
+  assert.equal(chain.compositors, 1, "El conteo debe atravesar capas ajenas");
+  assert.equal(chain.layers[0].marker, "cpamc-decorator");
+  assert.equal(chain.layers[1].marker, "wilox-slots-compositor");
+  assert.deepEqual(chain.slots, ["diag"]);
+
+  off?.();
+  registry().clear();
+});
+
+test("Sidebar Dock · Diagnóstico: distingue un frame con doble pintado", () => {
+  registry().clear();
+  const tui = freshTui(statusRail());
+  const off = mountSidebarSlot(tui, slotDef("cnt", 10, ["Pomo"]) as any);
+  const compositor = tui.parts.get("footer") as Rail;
+
+  compositor.digest();
+  compositor.render(38);
+  const afterSingle = inspectSidebarChain(tui).stats.doubleRenderFrames;
+
+  compositor.render(38);
+  const afterDouble = inspectSidebarChain(tui).stats.doubleRenderFrames;
+  assert.equal(afterDouble - afterSingle, 1, "Segundo pintado sin digest = frame con doble pintado");
+
+  compositor.digest();
+  compositor.render(38);
+  assert.equal(inspectSidebarChain(tui).stats.doubleRenderFrames, afterDouble,
+    "Un frame limpio no debe sumar al contador");
+
+  off?.();
+  registry().clear();
+});
+
+test("Sidebar Dock · Diagnóstico: el dispose retira sus contadores del agregado", () => {
+  registry().clear();
+  const tui = freshTui(statusRail());
+  const off = mountSidebarSlot(tui, slotDef("gc", 10, ["Pomo"]) as any);
+  const compositor = tui.parts.get("footer") as Rail;
+  const antes = inspectSidebarChain(tui).stats.compositors;
+
+  off?.();
+  registry().clear();
+  compositor.dispose?.();
+  assert.equal(inspectSidebarChain(tui).stats.compositors, antes - 1,
+    "Un compositor desmontado no debe seguir contando");
 });

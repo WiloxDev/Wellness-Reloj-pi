@@ -3,7 +3,7 @@ import { ClockEngine } from "./core/clock.js";
 import { WellnessTracker } from "./core/habits.js";
 import { renderWellnessCard } from "./ui/card.js";
 import { registerWellnessCommunityModule } from "./wilox-community.js";
-import { mountSidebarSlot, createZeroChatWidget } from "./sidebar-dock.js";
+import { mountSidebarSlot, createZeroChatWidget, inspectSidebarChain } from "./sidebar-dock.js";
 
 /**
  * Native Gentle-Pi and Gentle-Shell Extension Entry Point
@@ -138,6 +138,18 @@ export default function activate(pi: any) {
           ctx.ui?.notify?.("👁 Temporizador de descanso visual reiniciado.");
           triggerRender();
           break;
+        case "sidebar": {
+          // Diagnóstico de solo lectura: cadena real de composición del rail.
+          const chain = inspectSidebarChain(activeTui);
+          const layers = chain.layers.map((l, i) => `${i}:${l.marker}${l.delegates ? "↓" : "(fin)"}`).join(" ") || "ninguna";
+          const msg =
+            `[PomoReloj Sidebar] compositores=${chain.compositors} profundidad=${chain.depth} ` +
+            `ranuras=[${chain.slots.join(",")}] pintados=${chain.stats.renders} digests=${chain.stats.digests} ` +
+            `frames-con-doble-pintado=${chain.stats.doubleRenderFrames} | ${layers}` +
+            (chain.ok ? "" : ` | aviso: ${chain.reason}`);
+          ctx.ui?.notify?.(msg);
+          break;
+        }
         case "doctor": {
           const now = Date.now();
           const s = tracker.getStatus(now);
@@ -153,13 +165,13 @@ export default function activate(pi: any) {
           break;
         default:
           ctx.ui?.notify?.(
-            "Uso: /pomoreloj [reset | water | eyes | stretch | doctor]"
+            "Uso: /pomoreloj [reset | water | eyes | stretch | doctor | sidebar]"
           );
           break;
       }
     };
 
-    const cmdDesc = "🍅 PomoReloj Bigote: temporizadores de salud y reloj (reset, water, eyes, stretch, doctor)";
+    const cmdDesc = "🍅 PomoReloj Bigote: temporizadores de salud y reloj (reset, water, eyes, stretch, doctor, sidebar)";
     pi.registerCommand("pomoreloj", { description: cmdDesc, handler: handleCommand });
     pi.registerCommand("pomo", { description: cmdDesc + " (alias rápido)", handler: handleCommand });
     pi.registerCommand("wellness", { description: cmdDesc + " (compatibilidad heredada)", handler: handleCommand });

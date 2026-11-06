@@ -18,6 +18,77 @@ export interface CompositorSlotMeta {
 }
 
 /**
+ * Contadores puros de un compositor vivo. No cambian el pintado: solo observan.
+ *
+ * El host evalúa `digest()` una vez por frame (shell-sidebar-layout.ts, issue #1681) y luego
+ * pinta cada sección una vez. Si `render()` se invoca más de una vez entre dos `digest()`,
+ * hay un paso extra de pintado sobre el mismo rail (medición, doble sección u hoja de panel),
+ * que es justo lo que hay que distinguir antes de tocar la composición.
+ */
+export interface CompositorFrameStats {
+  renders: number;
+  digests: number;
+  rendersThisFrame: number;
+  doubleRenderFrames: number;
+}
+
+const frameStatsRegistry: CompositorFrameStats[] = [];
+
+/**
+ * Estado observable de la cadena de composición del rail, sin efectos secundarios.
+ * Devuelve cuántas capas hay por encima del footer, cuáles se declaran como enlaces
+ * de delegación (`__originalRail`) y cuántas ranuras están registradas.
+ */
+export function inspectSidebarChain(tui: any): {
+  ok: boolean;
+  reason?: string;
+  compositors: number;
+  layers: Array<{ marker: string; delegates: boolean }>;
+  depth: number;
+  slots: string[];
+  stats: { compositors: number; renders: number; digests: number; doubleRenderFrames: number };
+} {
+  const bus = globalThis as typeof globalThis & { [SIDEBAR_SLOTS_SLOT]?: Map<string, WiloxSidebarSlot> };
+  const slots = Array.from(bus[SIDEBAR_SLOTS_SLOT]?.keys() ?? []);
+  const stats = {
+    compositors: frameStatsRegistry.length,
+    renders: frameStatsRegistry.reduce((n, s) => n + s.renders, 0),
+    digests: frameStatsRegistry.reduce((n, s) => n + s.digests, 0),
+    doubleRenderFrames: frameStatsRegistry.reduce((n, s) => n + s.doubleRenderFrames, 0),
+  };
+
+  const terminal = tui?.terminal as any;
+  if (!terminal) return { ok: false, reason: "sin terminal", compositors: 0, layers: [], depth: 0, slots, stats };
+  const state =
+    terminal[Symbol.for("gentle-pi.experimental-sidebar.state")] ||
+    terminal[Symbol.for("wilox-pi.sidebar.state")] ||
+    terminal[Symbol.for("j0k3r-theme.sidebar.state")];
+  const footer = state?.parts?.get?.("footer");
+  if (!footer) return { ok: false, reason: "sin footer en parts", compositors: 0, layers: [], depth: 0, slots, stats };
+
+  const layers: Array<{ marker: string; delegates: boolean }> = [];
+  const seen = new Set<any>();
+  let node: any = footer;
+  let compositors = 0;
+  while (node && !seen.has(node)) {
+    seen.add(node);
+    const marker = node.__isWiloxSlotsCompositor
+      ? "wilox-slots-compositor"
+      : node.__isCpamcDecorated
+        ? "cpamc-decorator"
+        : node.__discordAttached
+          ? "discord-decorator"
+          : node.render
+            ? "rail"
+            : "capa sin render";
+    if (node.__isWiloxSlotsCompositor) compositors += 1;
+    layers.push({ marker, delegates: node.__originalRail !== undefined });
+    node = node.__originalRail;
+  }
+  return { ok: true, compositors, layers, depth: layers.length, slots, stats };
+}
+
+/**
  * Registra una ranura comunitaria en el Bus Unificado de Sidebar de WiloxDev
  * y envuelve el "footer" (Status card) de Gentle-Shell de forma resiliente y no invasiva.
  */
@@ -70,12 +141,20 @@ export function mountSidebarSlot(tui: any, slot: WiloxSidebarSlot): () => void {
     }
 
     let lastRenderedMeta: CompositorSlotMeta[] = [];
+    const frameStats: CompositorFrameStats = { renders: 0, digests: 0, rendersThisFrame: 0, doubleRenderFrames: 0 };
+    frameStatsRegistry.push(frameStats);
+    const statsIndex = frameStatsRegistry.length - 1;
 
     const compositorRail = {
       __isWiloxSlotsCompositor: true,
       __originalRail: originalRail,
       surface: "panel",
       render: (width: number) => {
+        // Observación pura: cuenta pintados por frame sin alterar la salida.
+        frameStats.renders += 1;
+        frameStats.rendersThisFrame += 1;
+        if (frameStats.rendersThisFrame === 2) frameStats.doubleRenderFrames += 1;
+
         let baseLines: string[] = [];
         try {
           baseLines = originalRail.render ? (originalRail.render(width) ?? []) : [];
@@ -121,6 +200,10 @@ export function mountSidebarSlot(tui: any, slot: WiloxSidebarSlot): () => void {
         return lines;
       },
       digest: () => {
+        // Un digest marca el inicio de un nuevo frame del rail.
+        frameStats.digests += 1;
+        frameStats.rendersThisFrame = 0;
+
         let baseDigest = "";
         try {
           baseDigest = typeof originalRail.digest === "function" ? originalRail.digest() : "";
@@ -171,6 +254,8 @@ export function mountSidebarSlot(tui: any, slot: WiloxSidebarSlot): () => void {
         return originalRail.handleMouse?.(event);
       },
       dispose: () => {
+        // El compositor deja de existir: su contador deja de ocupar el agregado.
+        if (frameStatsRegistry[statsIndex] === frameStats) frameStatsRegistry.splice(statsIndex, 1);
         // Solo se restaura la capa base original si este compositor sigue siendo el
         // footer activo; si otra extensión lo encapsuló, despojarlo eliminaría su capa.
         if (slotRegistry.size === 0 && gentleState.parts.get("footer") === compositorRail) {
